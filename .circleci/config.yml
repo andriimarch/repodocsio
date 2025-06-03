@@ -1,0 +1,23 @@
+version: 2.1
+
+jobs:
+  check-waiting-list:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Check GET request to documents.io"
+          command: |
+            echo "Sending GET request to https://www.documents.io/waiting-list"
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" https://www.documents.io/waiting-list)
+            echo "Received HTTP status: $http_code"
+            if [ "$http_code" -ne 200 ]; then
+              echo "Error: Expected status 200 but got $http_code"
+              exit 1
+            fi
+
+workflows:
+  check-site:
+    jobs:
+      - check-waiting-list
